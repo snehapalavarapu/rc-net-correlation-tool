@@ -118,6 +118,10 @@ def parse_spef(path: str | Path) -> SpefData:
             in_name_map = False
 
         if keyword == "*D_NET":
+            if len(tokens) < 2:
+                current_net = None
+                current_subsection = None
+                continue
             raw_name = tokens[1]
             total_c = 0.0
             if len(tokens) >= 3:

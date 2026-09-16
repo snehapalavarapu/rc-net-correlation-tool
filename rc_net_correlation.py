@@ -243,8 +243,9 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("-ref_rc", required=True, help="Reference SPEF file (.spef or .spef.gz)")
     parser.add_argument("-new_rc", required=True, help="New SPEF file (.spef or .spef.gz)")
     parser.add_argument("-output", required=True, help="Output directory for reports")
-    parser.add_argument("-net", help="Compare a single net name")
-    parser.add_argument("-nets", help="Comma-separated list of net names to compare")
+    net_group = parser.add_mutually_exclusive_group()
+    net_group.add_argument("-net", help="Compare a single net name")
+    net_group.add_argument("-nets", help="Comma-separated list of net names to compare")
     parser.add_argument(
         "-quality_filter",
         type=float,

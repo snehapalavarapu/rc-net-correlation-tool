@@ -136,6 +136,24 @@ class SpefCorrelationTests(unittest.TestCase):
                     ]
                 )
 
+    def test_parse_args_rejects_combined_net_selection_modes(self):
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parse_args(
+                    [
+                        "-ref_rc",
+                        str(REF_SPEF),
+                        "-new_rc",
+                        str(NEW_SPEF),
+                        "-output",
+                        "/tmp/out",
+                        "-net",
+                        "top/clk",
+                        "-nets",
+                        "top/reset",
+                    ]
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
