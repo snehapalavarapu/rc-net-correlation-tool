@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import csv
 import gzip
+import io
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 from rc_net_correlation import build_deltas, parse_args
@@ -26,6 +28,34 @@ class SpefCorrelationTests(unittest.TestCase):
         self.assertIn("top/clk", new.nets)
         self.assertEqual(ref.nets["top/clk"].raw_name, "*1")
         self.assertEqual(new.nets["top/clk"].raw_name, "*2")
+        self.assertAlmostEqual(ref.nets["top/clk"].declared_c, 0.5)
+        self.assertAlmostEqual(ref.nets["top/clk"].cap_sum, 0.5)
+        self.assertAlmostEqual(ref.nets["top/clk"].total_c, 0.5)
+
+    def test_parser_preserves_declared_d_net_capacitance(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            spef_path = Path(tmpdir) / "mismatch.spef"
+            spef_path.write_text(
+                "\n".join(
+                    [
+                        '*SPEF "IEEE 1481-1998"',
+                        "*NAME_MAP",
+                        "*1 top/mismatch",
+                        "*D_NET *1 0.9",
+                        "*CAP",
+                        "1 *1:1 0.2",
+                        "2 *1:2 0.3",
+                        "*RES",
+                        "1 *1:1 *1:2 1.0",
+                        "*END",
+                    ]
+                )
+            )
+            parsed = parse_spef(spef_path)
+            net = parsed.nets["top/mismatch"]
+            self.assertAlmostEqual(net.declared_c, 0.9)
+            self.assertAlmostEqual(net.cap_sum, 0.5)
+            self.assertAlmostEqual(net.total_c, 0.9)
 
     def test_build_deltas_filters_zero_rc_and_sorts_by_rc_delta(self):
         deltas, stats = build_deltas(REF_SPEF, NEW_SPEF)
@@ -87,23 +117,24 @@ class SpefCorrelationTests(unittest.TestCase):
                 rows = list(csv.DictReader(handle))
             self.assertEqual([row["net_name"] for row in rows], ["top/clk", "top/reset"])
             summary_text = summary_files[0].read_text()
-            self.assertIn("Worst RC deltas:\n  1. top/clk", summary_text)
-            self.assertNotIn("Worst RC deltas:\n  2.", summary_text)
+            self.assertIn("Worst RC deltas (sorted by |ΔRC|):\n  1. top/clk", summary_text)
+            self.assertNotIn("Worst RC deltas (sorted by |ΔRC|):\n  2.", summary_text)
 
     def test_parse_args_rejects_non_positive_top(self):
-        with self.assertRaises(SystemExit):
-            parse_args(
-                [
-                    "-ref_rc",
-                    str(REF_SPEF),
-                    "-new_rc",
-                    str(NEW_SPEF),
-                    "-output",
-                    "/tmp/out",
-                    "--top",
-                    "0",
-                ]
-            )
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parse_args(
+                    [
+                        "-ref_rc",
+                        str(REF_SPEF),
+                        "-new_rc",
+                        str(NEW_SPEF),
+                        "-output",
+                        "/tmp/out",
+                        "--top",
+                        "0",
+                    ]
+                )
 
 
 if __name__ == "__main__":

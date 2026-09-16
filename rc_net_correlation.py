@@ -146,16 +146,23 @@ def _positive_int(value: str) -> int:
 def _write_ranked_section(summary, deltas: Sequence[NetDelta], top_n: int, key_name: str) -> None:
     metric_attr = f"delta_{key_name}"
     ranked = sorted(deltas, key=lambda item: abs(getattr(item, metric_attr)), reverse=True)[:top_n]
-    summary.write(f"\nWorst {key_name.upper()} deltas:\n")
+    labels = {
+        "r": [("R", "delta_r", "pct_r"), ("C", "delta_c", "pct_c"), ("RC", "delta_rc", "pct_rc")],
+        "c": [("C", "delta_c", "pct_c"), ("R", "delta_r", "pct_r"), ("RC", "delta_rc", "pct_rc")],
+        "rc": [("RC", "delta_rc", "pct_rc"), ("R", "delta_r", "pct_r"), ("C", "delta_c", "pct_c")],
+    }
+    summary.write(f"\nWorst {key_name.upper()} deltas (sorted by |Δ{key_name.upper()}|):\n")
     if not ranked:
         summary.write("  No matched nets after filtering.\n")
         return
     for index, item in enumerate(ranked, start=1):
+        metric_parts = []
+        for label, delta_attr, pct_attr in labels[key_name]:
+            metric_parts.append(
+                f"Δ{label}={getattr(item, delta_attr):.6f} ({_format_pct(getattr(item, pct_attr))})"
+            )
         summary.write(
-            f"  {index}. {item.name}: "
-            f"ΔR={item.delta_r:.6f} ({_format_pct(item.pct_r)}), "
-            f"ΔC={item.delta_c:.6f} ({_format_pct(item.pct_c)}), "
-            f"ΔRC={item.delta_rc:.6f} ({_format_pct(item.pct_rc)})\n"
+            f"  {index}. {item.name}: " + ", ".join(metric_parts) + "\n"
         )
 
 

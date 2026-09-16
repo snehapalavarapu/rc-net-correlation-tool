@@ -161,7 +161,7 @@ def parse_spef(path: str | Path) -> SpefData:
                 continue
             current_net.cap_entries += 1
             current_net.cap_sum += value
-            current_net.total_c = current_net.cap_sum
+            current_net.metadata["cap_sum"] = str(current_net.cap_sum)
             continue
 
         if current_subsection == "*RES":
