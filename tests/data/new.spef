@@ -1,0 +1,35 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "demo"
+*NAME_MAP
+*1 top/data[0]
+*2 top/clk
+*3 top/unused
+*4 top/reset
+*D_NET *2 0.60
+*CAP
+1 *2:1 0.20
+2 *2:2 0.40
+*RES
+1 *2:1 *2:2 12.0
+*Q 5
+*END
+*D_NET *1 0.30
+*CAP
+1 *1:1 0.30
+*RES
+1 *1:1 *1:2 4.0
+*Q 3
+*END
+*D_NET *3 0.00
+*CAP
+1 *3:1 0.00
+*RES
+1 *3:1 *3:2 0.0
+*END
+*D_NET *4 0.10
+*CAP
+1 *4:1 0.10
+*RES
+1 *4:1 *4:2 0.5
+*Q 4
+*END
