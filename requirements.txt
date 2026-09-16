@@ -1,0 +1,2 @@
+# No external dependencies are required.
+# Use Python 3.10+ to run the tool and tests.
