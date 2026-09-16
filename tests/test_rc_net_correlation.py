@@ -57,6 +57,32 @@ class SpefCorrelationTests(unittest.TestCase):
             self.assertAlmostEqual(net.cap_sum, 0.5)
             self.assertAlmostEqual(net.total_c, 0.9)
 
+    def test_parser_handles_quoted_names_and_separates_coupling_caps(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            spef_path = Path(tmpdir) / "quoted.spef"
+            spef_path.write_text(
+                "\n".join(
+                    [
+                        '*SPEF "IEEE 1481-1998"',
+                        "*NAME_MAP",
+                        '*1 "top block/clk"',
+                        "*D_NET *1 0.9",
+                        "*CAP",
+                        "1 *1:1 0.2",
+                        "2 *1:1 *1:2 0.7",
+                        "*RES",
+                        "1 *1:1 *1:2 1.0",
+                        "*END",
+                    ]
+                )
+            )
+            parsed = parse_spef(spef_path)
+            net = parsed.nets["top block/clk"]
+            self.assertAlmostEqual(net.declared_c, 0.9)
+            self.assertAlmostEqual(net.cap_sum, 0.2)
+            self.assertAlmostEqual(net.coupling_cap_sum, 0.7)
+            self.assertAlmostEqual(net.total_c, 0.9)
+
     def test_build_deltas_filters_zero_rc_and_sorts_by_rc_delta(self):
         deltas, stats = build_deltas(REF_SPEF, NEW_SPEF)
 

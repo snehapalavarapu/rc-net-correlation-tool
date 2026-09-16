@@ -41,6 +41,7 @@ class NetData:
     total_r: float = 0.0
     declared_c: float = 0.0
     cap_sum: float = 0.0
+    coupling_cap_sum: float = 0.0
     quality: Optional[float] = None
     cap_entries: int = 0
     res_entries: int = 0
@@ -66,6 +67,12 @@ def open_spef(path: Path):
 
 def resolve_name(token: str, name_map: Dict[str, str]) -> str:
     return name_map.get(token, token)
+
+
+def _strip_spef_quotes(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return value[1:-1]
+    return value
 
 
 def _iter_lines(path: Path) -> Iterable[str]:
@@ -111,7 +118,8 @@ def parse_spef(path: str | Path) -> SpefData:
             continue
 
         if in_name_map and keyword not in SECTION_HEADERS and len(tokens) >= 2:
-            name_map[tokens[0]] = " ".join(tokens[1:])
+            mapped_name = line[len(tokens[0]) :].strip()
+            name_map[tokens[0]] = _strip_spef_quotes(mapped_name)
             continue
 
         if keyword in SECTION_HEADERS and keyword != "*NAME_MAP":
@@ -164,8 +172,12 @@ def parse_spef(path: str | Path) -> SpefData:
             except ValueError:
                 continue
             current_net.cap_entries += 1
-            current_net.cap_sum += value
+            if len(tokens) >= 4:
+                current_net.coupling_cap_sum += value
+            else:
+                current_net.cap_sum += value
             current_net.metadata["cap_sum"] = str(current_net.cap_sum)
+            current_net.metadata["coupling_cap_sum"] = str(current_net.coupling_cap_sum)
             continue
 
         if current_subsection == "*RES":
