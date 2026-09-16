@@ -92,6 +92,12 @@ def _parse_quality(tokens: list[str]) -> Optional[float]:
     return None
 
 
+def _drop_optional_index(tokens: list[str]) -> list[str]:
+    if tokens and tokens[0].isdigit():
+        return tokens[1:]
+    return tokens
+
+
 def parse_spef(path: str | Path) -> SpefData:
     spef_path = Path(path)
     name_map: Dict[str, str] = {}
@@ -166,7 +172,8 @@ def parse_spef(path: str | Path) -> SpefData:
             continue
 
         if current_subsection == "*CAP":
-            if len(tokens) < 3:
+            payload = _drop_optional_index(tokens)
+            if len(payload) < 2:
                 continue
             value_token = tokens[-1]
             try:
@@ -174,9 +181,9 @@ def parse_spef(path: str | Path) -> SpefData:
             except ValueError:
                 continue
             current_net.cap_entries += 1
-            if len(tokens) == 3:
+            if len(payload) == 2:
                 current_net.cap_sum += value
-            elif len(tokens) >= 4:
+            elif len(payload) >= 3:
                 current_net.coupling_cap_sum += value
             else:
                 continue
@@ -185,7 +192,8 @@ def parse_spef(path: str | Path) -> SpefData:
             continue
 
         if current_subsection == "*RES":
-            if len(tokens) < 4:
+            payload = _drop_optional_index(tokens)
+            if len(payload) < 3:
                 continue
             value_token = tokens[-1]
             try:

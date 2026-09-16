@@ -240,14 +240,16 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Compare two SPEF files using stable net names from NAME_MAP."
     )
-    parser.add_argument("-ref_rc", required=True, help="Reference SPEF file (.spef or .spef.gz)")
-    parser.add_argument("-new_rc", required=True, help="New SPEF file (.spef or .spef.gz)")
-    parser.add_argument("-output", required=True, help="Output directory for reports")
+    parser.add_argument("-ref_rc", "--ref-rc", dest="ref_rc", required=True, help="Reference SPEF file (.spef or .spef.gz)")
+    parser.add_argument("-new_rc", "--new-rc", dest="new_rc", required=True, help="New SPEF file (.spef or .spef.gz)")
+    parser.add_argument("-output", "--output", dest="output", required=True, help="Output directory for reports")
     net_group = parser.add_mutually_exclusive_group()
-    net_group.add_argument("-net", help="Compare a single net name")
-    net_group.add_argument("-nets", help="Comma-separated list of net names to compare")
+    net_group.add_argument("-net", "--net", dest="net", help="Compare a single net name")
+    net_group.add_argument("-nets", "--nets", dest="nets", help="Comma-separated list of net names to compare")
     parser.add_argument(
         "-quality_filter",
+        "--quality-filter",
+        dest="quality_filter",
         type=float,
         help="Keep only nets whose optional quality metric is >= this threshold in both SPEFs",
     )
