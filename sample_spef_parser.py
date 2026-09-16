@@ -166,21 +166,27 @@ def parse_spef(path: str | Path) -> SpefData:
             continue
 
         if current_subsection == "*CAP":
+            if len(tokens) < 3:
+                continue
             value_token = tokens[-1]
             try:
                 value = float(value_token)
             except ValueError:
                 continue
             current_net.cap_entries += 1
-            if len(tokens) == 4:
+            if len(tokens) == 3:
+                current_net.cap_sum += value
+            elif len(tokens) >= 4:
                 current_net.coupling_cap_sum += value
             else:
-                current_net.cap_sum += value
+                continue
             current_net.metadata["cap_sum"] = str(current_net.cap_sum)
             current_net.metadata["coupling_cap_sum"] = str(current_net.coupling_cap_sum)
             continue
 
         if current_subsection == "*RES":
+            if len(tokens) < 4:
+                continue
             value_token = tokens[-1]
             try:
                 value = float(value_token)

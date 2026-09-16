@@ -57,4 +57,4 @@ python -m unittest tests.test_rc_net_correlation
 
 ## Notes on quality filtering
 
-`-quality_filter` applies only when a net has an optional quality value in both SPEFs, such as a `*Q` or `*QUALITY` value inside a `*D_NET` section. Nets without quality data are excluded when the filter is enabled.
+When `-quality_filter` is enabled, a matched net must have a quality value in both SPEFs and both values must be greater than or equal to the threshold. Quality values can come from optional `*Q` or `*QUALITY` entries inside a `*D_NET` section.

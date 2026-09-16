@@ -104,6 +104,45 @@ class SpefCorrelationTests(unittest.TestCase):
         self.assertEqual(stats["matched_nets"], 1)
         self.assertEqual(deltas[0].name, "top/clk")
 
+    def test_quality_filter_excludes_nets_missing_quality_data(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ref_path = Path(tmpdir) / "ref_missing_quality.spef"
+            new_path = Path(tmpdir) / "new_missing_quality.spef"
+            ref_path.write_text(
+                "\n".join(
+                    [
+                        '*SPEF "IEEE 1481-1998"',
+                        "*NAME_MAP",
+                        "*1 top/no_q",
+                        "*D_NET *1 0.1",
+                        "*CAP",
+                        "1 *1:1 0.1",
+                        "*RES",
+                        "1 *1:1 *1:2 1.0",
+                        "*END",
+                    ]
+                )
+            )
+            new_path.write_text(
+                "\n".join(
+                    [
+                        '*SPEF "IEEE 1481-1998"',
+                        "*NAME_MAP",
+                        "*1 top/no_q",
+                        "*D_NET *1 0.1",
+                        "*CAP",
+                        "1 *1:1 0.1",
+                        "*RES",
+                        "1 *1:1 *1:2 1.0",
+                        "*Q 4",
+                        "*END",
+                    ]
+                )
+            )
+            deltas, stats = build_deltas(ref_path, new_path, quality_filter=3)
+            self.assertEqual(stats["matched_nets"], 0)
+            self.assertEqual(stats["skipped_quality"], 1)
+
     def test_cli_writes_summary_and_csv_for_gzip_input(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
