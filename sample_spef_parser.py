@@ -172,7 +172,7 @@ def parse_spef(path: str | Path) -> SpefData:
             except ValueError:
                 continue
             current_net.cap_entries += 1
-            if len(tokens) >= 4:
+            if len(tokens) == 4:
                 current_net.coupling_cap_sum += value
             else:
                 current_net.cap_sum += value

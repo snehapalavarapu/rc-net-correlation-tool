@@ -139,7 +139,7 @@ class SpefCorrelationTests(unittest.TestCase):
             self.assertEqual(len(csv_files), 1)
             self.assertEqual(len(summary_files), 1)
 
-            with csv_files[0].open() as handle:
+            with csv_files[0].open(encoding="utf-8") as handle:
                 rows = list(csv.DictReader(handle))
             self.assertEqual([row["net_name"] for row in rows], ["top/clk", "top/reset"])
             summary_text = summary_files[0].read_text()
