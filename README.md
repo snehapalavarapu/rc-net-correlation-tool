@@ -4,9 +4,9 @@ RC Net Correlation Tool for SPEF comparison using stable net names instead of ra
 
 ## Files
 
-- `/home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/rc_net_correlation.py` — main CLI tool
-- `/home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/sample_spef_parser.py` — SPEF parser helper
-- `/home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/tests/data/*.spef` — sample SPEF inputs for examples and tests
+- `rc_net_correlation.py` — main CLI tool
+- `sample_spef_parser.py` — SPEF parser helper
+- `tests/data/*.spef` — sample SPEF inputs for examples and tests
 
 ## Features
 
@@ -44,15 +44,15 @@ The tool prints and writes:
 
 ```bash
 python rc_net_correlation.py \
-  -ref_rc /home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/tests/data/ref.spef \
-  -new_rc /home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/tests/data/new.spef \
+  -ref_rc tests/data/ref.spef \
+  -new_rc tests/data/new.spef \
   -output /tmp/rc_out
 ```
 
 ## Tests
 
 ```bash
-python -m unittest /home/runner/work/rc-net-correlation-tool/rc-net-correlation-tool/tests/test_rc_net_correlation.py
+python -m unittest tests.test_rc_net_correlation
 ```
 
 ## Notes on quality filtering

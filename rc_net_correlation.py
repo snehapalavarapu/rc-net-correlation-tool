@@ -136,9 +136,15 @@ def _format_pct(value: float | None) -> str:
     return f"{value:.2f}%"
 
 
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("--top must be a positive integer")
+    return parsed
+
+
 def _write_ranked_section(summary, deltas: Sequence[NetDelta], top_n: int, key_name: str) -> None:
     metric_attr = f"delta_{key_name}"
-    pct_attr = f"pct_{key_name}"
     ranked = sorted(deltas, key=lambda item: abs(getattr(item, metric_attr)), reverse=True)[:top_n]
     summary.write(f"\nWorst {key_name.upper()} deltas:\n")
     if not ranked:
@@ -244,7 +250,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--top",
-        type=int,
+        type=_positive_int,
         default=10,
         help="Number of highest |ΔRC| nets to show in the summary (default: 10)",
     )

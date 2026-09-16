@@ -39,6 +39,8 @@ class NetData:
     raw_name: str
     total_c: float = 0.0
     total_r: float = 0.0
+    declared_c: float = 0.0
+    cap_sum: float = 0.0
     quality: Optional[float] = None
     cap_entries: int = 0
     res_entries: int = 0
@@ -127,6 +129,7 @@ def parse_spef(path: str | Path) -> SpefData:
                 name=resolve_name(raw_name, name_map),
                 raw_name=raw_name,
                 total_c=total_c,
+                declared_c=total_c,
             )
             if len(tokens) > 3:
                 current_net.quality = _parse_quality(tokens[3:])
@@ -157,11 +160,8 @@ def parse_spef(path: str | Path) -> SpefData:
             except ValueError:
                 continue
             current_net.cap_entries += 1
-            current_net.metadata["cap_sum"] = str(
-                float(current_net.metadata.get("cap_sum", "0.0")) + value
-            )
-            if current_net.total_c == 0.0:
-                current_net.total_c = float(current_net.metadata["cap_sum"])
+            current_net.cap_sum += value
+            current_net.total_c = current_net.cap_sum
             continue
 
         if current_subsection == "*RES":

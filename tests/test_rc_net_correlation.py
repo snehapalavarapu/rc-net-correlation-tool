@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from rc_net_correlation import build_deltas
+from rc_net_correlation import build_deltas, parse_args
 from sample_spef_parser import parse_spef
 
 
@@ -69,6 +69,8 @@ class SpefCorrelationTests(unittest.TestCase):
                     "top/clk,top/reset",
                     "-output",
                     str(outdir),
+                    "--top",
+                    "1",
                 ],
                 check=True,
                 capture_output=True,
@@ -84,6 +86,24 @@ class SpefCorrelationTests(unittest.TestCase):
             with csv_files[0].open() as handle:
                 rows = list(csv.DictReader(handle))
             self.assertEqual([row["net_name"] for row in rows], ["top/clk", "top/reset"])
+            summary_text = summary_files[0].read_text()
+            self.assertIn("Worst RC deltas:\n  1. top/clk", summary_text)
+            self.assertNotIn("Worst RC deltas:\n  2.", summary_text)
+
+    def test_parse_args_rejects_non_positive_top(self):
+        with self.assertRaises(SystemExit):
+            parse_args(
+                [
+                    "-ref_rc",
+                    str(REF_SPEF),
+                    "-new_rc",
+                    str(NEW_SPEF),
+                    "-output",
+                    "/tmp/out",
+                    "--top",
+                    "0",
+                ]
+            )
 
 
 if __name__ == "__main__":
